@@ -439,7 +439,7 @@ const RESULTS = {
 /* ================= Supabase 初始化 ================= */
 const SUPABASE_URL = "https://ylqpmifklhfgiithmfml.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlscXBtaWZrbGhmZ2lpdGhtZm1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzI0MjcsImV4cCI6MjEwODE0ODQyN30.QGSzT1wb1X4C4GbaHMZ3ihQrt7SANDMwjUZlHNNeG2A";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const PW_KEY = "fb_life_player_pw";      // 本地记录密码使用次数（兼容）
 const RESULT_KEY = "fb_life_player_saved"; // 保存的结果
@@ -483,7 +483,7 @@ async function doLogin(){
 
   try{
     // 调用云端 RPC 函数校验密码并消耗一次次数
-    const { data, error } = await supabase.rpc("verify_password", { p_code: pw });
+    const { data, error } = await sb.rpc("verify_password", { p_code: pw });
 
     if(error){
       console.error("verify_password error:", error);
@@ -780,7 +780,7 @@ async function saveResult(){
   if(!lastResult) return;
   // 保存到云端，获取分享 ID
   try{
-    const { data: resultId, error } = await supabase.rpc("save_result", {
+    const { data: resultId, error } = await sb.rpc("save_result", {
       p_result_type: lastResult.type,
       p_result_name: lastResult.R.name,
       p_answer_data: JSON.stringify(state.answers)
@@ -818,7 +818,7 @@ function copyLink(){
   }else{
     // 尚未保存，先保存再复制
     toast("正在生成分享链接...");
-    supabase.rpc("save_result", {
+    sb.rpc("save_result", {
       p_result_type: lastResult.type,
       p_result_name: lastResult.R.name,
       p_answer_data: JSON.stringify(state.answers)
