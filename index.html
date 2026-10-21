@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>你是哪种人生副本玩家？</title>
+<style>
+:root{
+  --bg:#0f0f1a;
+  --bg2:#1a1a2e;
+  --card:#23233a;
+  --card2:#2c2c46;
+  --accent:#ff5c8a;
+  --accent2:#ffb74d;
+  --text:#f5f5fa;
+  --muted:#9a9ab0;
+  --green:#4ade80;
+  --line:#34344e;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+.page{display:none;min-height:100vh;animation:fadeIn .4s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ===== 通用 ===== */
+.wrap{max-width:480px;margin:0 auto;padding:0 20px;}
+.btn{
+  display:block;width:100%;border:none;border-radius:14px;
+  padding:15px;font-size:17px;font-weight:700;cursor:pointer;
+  transition:transform .15s,opacity .15s;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#ff3d6e);color:#fff;box-shadow:0 6px 20px rgba(255,92,138,.35);}
+.btn-ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent);}
+.btn-line{background:var(--card);color:var(--text);border:1.5px solid var(--line);}
+.btn-sm{display:inline-block;width:auto;padding:10px 18px;font-size:14px;border-radius:10px;}
+
+/* ===== 密码页 ===== */
+#passwordPage .wrap{display:flex;flex-direction:column;justify-content:center;min-height:100vh;padding-top:40px;padding-bottom:40px;}
+.logo-hero{text-align:center;margin-bottom:36px;}
+.logo-hero .emoji{font-size:64px;display:block;margin-bottom:12px;}
+.logo-hero h1{font-size:26px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.logo-hero p{color:var(--muted);font-size:14px;}
+.pw-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 22px;}
+.pw-card label{font-size:14px;color:var(--muted);display:block;margin-bottom:10px;}
+.pw-input{
+  width:100%;background:var(--bg2);border:1.5px solid var(--line);border-radius:12px;
+  padding:14px;font-size:18px;color:var(--text);text-align:center;letter-spacing:2px;
+  margin-bottom:16px;outline:none;transition:border .2s;
+}
+.pw-input:focus{border-color:var(--accent);}
+.pw-err{color:var(--accent);font-size:13px;text-align:center;margin-bottom:12px;min-height:18px;}
+.pw-hint{text-align:center;color:var(--muted);font-size:12px;margin-top:16px;}
+
+/* ===== 答题页 ===== */
+#quizPage .wrap{padding-top:24px;padding-bottom:60px;}
+.quiz-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.quiz-progress-text{font-size:13px;color:var(--muted);}
+.quiz-progress-bar{height:6px;background:var(--card);border-radius:3px;overflow:hidden;margin-bottom:24px;}
+.quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .3s;}
+.quiz-q-num{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:8px;}
+.quiz-question{font-size:20px;font-weight:700;margin-bottom:24px;line-height:1.5;}
+.options{display:flex;flex-direction:column;gap:12px;}
+.option{
+  background:var(--card);border:1.5px solid var(--line);border-radius:14px;
+  padding:16px;font-size:15px;text-align:left;color:var(--text);cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;gap:12px;
+}
+.option:active{transform:scale(.98);}
+.option .opt-mark{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted);}
+.option.selected{border-color:var(--accent);background:rgba(255,92,138,.08);}
+.option.selected .opt-mark{background:var(--accent);border-color:var(--accent);color:#fff;}
+.quiz-nav{display:flex;gap:12px;margin-top:28px;}
+.quiz-nav .btn{flex:1;}
+.btn-back{background:var(--card);color:var(--muted);border:1.5px solid var(--line);}
+
+/* ===== 结果页 ===== */
+#resultPage .wrap{padding-top:24px;padding-bottom:60px;}
+.result-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px 22px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.result-card::before{content:"";position:absolute;top:-60px;right:-60px;width:160px;height:160px;background:radial-gradient(circle,rgba(255,92,138,.25),transparent 70%);border-radius:50%;}
+.result-emoji{font-size:64px;display:block;margin-bottom:12px;}
+.result-title{font-size:26px;font-weight:800;margin-bottom:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.result-subtitle{font-size:14px;color:var(--accent2);font-weight:600;margin-bottom:16px;}
+.result-desc{font-size:15px;color:var(--text);margin-bottom:24px;text-align:left;background:var(--bg2);border-radius:14px;padding:16px;}
+
+.radar-box{background:var(--bg2);border-radius:16px;padding:16px;margin-bottom:16px;}
+.radar-box h3{font-size:14px;color:var(--muted);font-weight:600;margin-bottom:8px;text-align:left;}
+.radar-chart{width:100%;height:200px;}
+
+.dim-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;text-align:left;}
+.dim-item{background:var(--bg2);border-radius:12px;padding:12px 14px;}
+.dim-item .dim-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.dim-item .dim-name{color:var(--text);font-weight:600;}
+.dim-item .dim-val{color:var(--accent2);font-weight:700;}
+.dim-bar{height:6px;background:var(--card);border-radius:3px;overflow:hidden;}
+.dim-bar .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;}
+
+.insight-box{background:var(--bg2);border-radius:14px;padding:16px;margin-bottom:16px;text-align:left;border-left:3px solid var(--accent);}
+.insight-box h4{font-size:13px;color:var(--accent);font-weight:700;margin-bottom:6px;}
+.insight-box p{font-size:14px;color:var(--text);}
+
+.quote-box{background:linear-gradient(135deg,rgba(255,92,138,.15),rgba(255,183,77,.15));border-radius:16px;padding:20px;margin-bottom:16px;position:relative;}
+.quote-box .quote-mark{font-size:36px;color:var(--accent);opacity:.5;line-height:1;}
+.quote-box p{font-size:17px;font-weight:700;color:var(--text);font-style:italic;margin-top:4px;}
+
+.result-actions{display:flex;flex-direction:column;gap:12px;margin-top:8px;}
+.row2{display:flex;gap:12px;}
+.row2 .btn{flex:1;}
+
+/* ===== 弹窗 ===== */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal-mask.show{display:flex;animation:fadeIn .25s;}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 24px;max-width:360px;width:100%;text-align:center;}
+.modal .m-emoji{font-size:48px;display:block;margin-bottom:12px;}
+.modal h3{font-size:19px;font-weight:800;margin-bottom:12px;}
+.modal p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7;}
+.modal .btn{margin-top:8px;}
+
+/* toast */
+.toast{position:fixed;bottom:40px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line);color:var(--text);padding:12px 20px;border-radius:12px;font-size:14px;z-index:200;opacity:0;transition:all .3s;pointer-events:none;max-width:80%;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:360px){
+  .logo-hero h1{font-size:22px;}
+  .quiz-question{font-size:18px;}
+  .result-title{font-size:22px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== 密码页 ========== -->
+<div id="passwordPage" class="page active">
+  <div class="wrap">
+    <div class="logo-hero">
+      <span class="emoji">🎮</span>
+      <h1>你是哪种人生副本玩家？</h1>
+      <p>测测你的「生存策略」——好笑、扎心、又被说中</p>
+    </div>
+    <div class="pw-card">
+      <label>输入测评密码</label>
+      <input type="password" id="pwInput" class="pw-input" placeholder="请输入密码" maxlength="20" inputmode="text" autocomplete="off">
+      <div class="pw-err" id="pwErr"></div>
+      <button class="btn btn-primary" id="pwSubmit">开始测评</button>
+      <div class="pw-hint">每个密码可测评 3 次 · 密码请向购买渠道获取</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 答题页 ========== -->
+<div id="quizPage" class="page">
+  <div class="wrap">
+    <div class="quiz-top">
+      <span class="quiz-progress-text" id="quizProgressText">1 / 24</span>
+      <span class="quiz-progress-text" id="quizRemainText">剩余 2 次</span>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+    <div class="quiz-q-num" id="quizQNum">第 1 题</div>
+    <div class="quiz-question" id="quizQuestion"></div>
+    <div class="options" id="quizOptions"></div>
+    <div class="quiz-nav">
+      <button class="btn btn-back" id="btnPrev" style="display:none;">上一题</button>
+      <button class="btn btn-primary" id="btnNext">下一题</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 结果页 ========== -->
+<div id="resultPage" class="page">
+  <div class="wrap">
+    <div id="resultContent"></div>
+  </div>
+</div>
+
+<!-- ========== 好评弹窗 ========== -->
+<div class="modal-mask" id="reviewModal">
+  <div class="modal">
+    <span class="m-emoji">💝</span>
+    <h3>感谢你的喜欢！</h3>
+    <p>店铺好评后请联系客服<br>并发送好评截图<br>即可获得 <b style="color:var(--accent2)">1 元返现</b></p>
+    <button class="btn btn-primary" id="reviewClose">知道了</button>
+  </div>
+</div>
+
+<!-- toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ================= 数据 ================= */
+// 维度: A主线策略 B资源获取 C回血方式 D风险偏好
+const QUESTIONS = [
+  {d:"A", q:"你通常怎么安排一个普通的周末？", opts:[
+    {t:"提前列好要做的事，按清单执行", v:2},
+    {t:"大概有个方向，边走边调整", v:1},
+    {t:"睡醒再说，随缘", v:0},
+    {t:"讨厌任何计划，越自由越好", v:-1}
+  ]},
+  {d:"A", q:"对于「五年后你在干什么」这个问题，你：", opts:[
+    {t:"有清晰画面和路线", v:2},
+    {t:"有模糊方向，但不确定", v:1},
+    {t:"没想过，走一步看一步", v:0},
+    {t:"觉得这个问题本身就很烦", v:-1}
+  ]},
+  {d:"A", q:"你选择一份工作/专业，更看重：", opts:[
+    {t:"清晰的晋升路径和确定性", v:2},
+    {t:"喜欢 + 能养活自己就行", v:0},
+    {t:"有没有意思，确定性不重要", v:-1},
+    {t:"完全凭当时的感觉", v:-2}
+  ]},
+  {d:"A", q:"面对一个重要项目，你的习惯是：", opts:[
+    {t:"拆解成步骤，按节点推进", v:2},
+    {t:"先干起来，边干边理", v:1},
+    {t:"拖到 deadline 再爆发", v:-1},
+    {t:"能做多少做多少，不行就放弃", v:-2}
+  ]},
+  {d:"A", q:"「三十而立」这句话，你的态度是：", opts:[
+    {t:"认可，人生要有阶段目标", v:2},
+    {t:"有压力，但会努力", v:1},
+    {t:"无所谓，是别人定的标准", v:-1},
+    {t:"反感，凭什么被年龄绑架", v:-2}
+  ]},
+  {d:"A", q:"你更认同下面哪句话？", opts:[
+    {t:"凡事预则立，不预则废", v:2},
+    {t:"计划赶不上变化，但还是要计划", v:1},
+    {t:"船到桥头自然直", v:-1},
+    {t:"人生就是随机游走", v:-2}
+  ]},
+  {d:"B", q:"拿到一笔「意外之财」（年终奖/奖学金），你的第一反应是：", opts:[
+    {t:"存起来 / 理财，安全感第一", v:2},
+    {t:"一部分存，一部分奖励自己", v:1},
+    {t:"花在一直想买/想学的东西上", v:-1},
+    {t:"立刻规划一次旅行或体验", v:-2}
+  ]},
+  {d:"B", q:"工作/学习中遇到不会的，你更倾向：", opts:[
+    {t:"报课、买书、系统学", v:2},
+    {t:"先自己查资料摸索", v:1},
+    {t:"边做边错，错了再改", v:-1},
+    {t:"直接上手试，不管会不会", v:-2}
+  ]},
+  {d:"B", q:"你更愿意把钱花在：", opts:[
+    {t:"提升能力/资产（证书、课程、房子）", v:2},
+    {t:"提升生活质量（家居、健康）", v:1},
+    {t:"社交和维系关系", v:0},
+    {t:"新鲜体验（旅行、演出、爱好）", v:-2}
+  ]},
+  {d:"B", q:"对于「简历/履历」，你的态度是：", opts:[
+    {t:"认真经营，是重要资产", v:2},
+    {t:"需要时再整理", v:1},
+    {t:"无所谓，能力比纸面重要", v:-1},
+    {t:"简历是骗人的，活得开心才重要", v:-2}
+  ]},
+  {d:"B", q:"你更享受下面哪种成就感？", opts:[
+    {t:"攒够了一笔钱/拿到一个资格", v:2},
+    {t:"完成了一个长期目标", v:1},
+    {t:"认识了一群有趣的人", v:0},
+    {t:"经历了一件从没做过的事", v:-2}
+  ]},
+  {d:"B", q:"面对「内卷」，你更可能：", opts:[
+    {t:"加入，不卷就被淘汰", v:2},
+    {t:"适度卷，保持竞争力", v:1},
+    {t:"能躲就躲，性价比不高", v:-1},
+    {t:"拒绝内卷，另辟蹊径", v:-2}
+  ]},
+  {d:"C", q:"累了一周，周五晚上你更想：", opts:[
+    {t:"一个人在家，安静地待着", v:"solo"},
+    {t:"约一两个最熟的朋友小聚", v:"social"},
+    {t:"去热闹的场合，认识新朋友", v:"social"},
+    {t:"想干嘛干嘛，全看心情", v:"solo"}
+  ]},
+  {d:"C", q:"遇到烦心事，你的第一反应是：", opts:[
+    {t:"自己消化，不想麻烦别人", v:"solo"},
+    {t:"找信任的人倾诉", v:"social"},
+    {t:"用工作/学习把自己填满", v:"out"},
+    {t:"刷手机/睡觉，先逃避一下", v:"solo"}
+  ]},
+  {d:"C", q:"哪种「休息」对你最有效？", opts:[
+    {t:"睡够觉、独处放空", v:"solo"},
+    {t:"和朋友吃饭逛街吐槽", v:"social"},
+    {t:"完成一件小事获得掌控感", v:"out"},
+    {t:"换个环境，出去走走", v:"solo"}
+  ]},
+  {d:"C", q:"社交对你来说是：", opts:[
+    {t:"消耗，需要独处来补充", v:"solo"},
+    {t:"看对象，对的人能充电", v:"social"},
+    {t:"充电，越聊越有能量", v:"social"},
+    {t:"无所谓，有也行没有也行", v:"solo"}
+  ]},
+  {d:"C", q:"压力大的时候，你更可能：", opts:[
+    {t:"列清单，把事一件件解决", v:"out"},
+    {t:"找人聊聊，说出来就好受", v:"social"},
+    {t:"暂时放下，去运动/看剧/散步", v:"solo"},
+    {t:"硬扛，直到扛不住", v:"out"}
+  ]},
+  {d:"C", q:"你理想的「个人时间」是：", opts:[
+    {t:"完全独处，不被打扰", v:"solo"},
+    {t:"和一两个知己深度交流", v:"social"},
+    {t:"专注做一件喜欢的事", v:"out"},
+    {t:"一群人热闹地玩", v:"social"}
+  ]},
+  {d:"D", q:"高薪高压不稳定的工作 vs 稳定平庸的工作，你选：", opts:[
+    {t:"稳定，安全感重要", v:-2},
+    {t:"偏稳定，但愿意偶尔冒险", v:-1},
+    {t:"偏挑战，趁年轻拼一把", v:1},
+    {t:"高薪高压，富贵险中求", v:2}
+  ]},
+  {d:"D", q:"面对「跳槽/转行」的念头，你通常：", opts:[
+    {t:"想想就害怕，能不动就不动", v:-2},
+    {t:"反复权衡，纠结很久", v:-1},
+    {t:"会尝试，大不了再回来", v:1},
+    {t:"说走就走，人生需要变化", v:2}
+  ]},
+  {d:"D", q:"你更认同哪种人生信条？", opts:[
+    {t:"稳中求胜，笑到最后", v:-2},
+    {t:"三思而后行", v:-1},
+    {t:"不试怎么知道", v:1},
+    {t:"人生苦短，及时折腾", v:2}
+  ]},
+  {d:"D", q:"在游戏中（或打牌/下注），你更倾向：", opts:[
+    {t:"从不冒险，稳妥推进", v:-2},
+    {t:"偶尔小赌怡情", v:-1},
+    {t:"该出手时就出手", v:1},
+    {t:"喜欢 all-in 的刺激感", v:2}
+  ]},
+  {d:"D", q:"面对一个「可能失败但很诱人」的机会，你：", opts:[
+    {t:"大概率放弃，怕输", v:-2},
+    {t:"评估失败成本后再决定", v:-1},
+    {t:"失败也能接受，就上", v:1},
+    {t:"不试才会后悔，冲", v:2}
+  ]},
+  {d:"D", q:"你如何看待「稳定」？", opts:[
+    {t:"稳定是终极目标", v:-2},
+    {t:"稳定很重要，但要有底线突破", v:-1},
+    {t:"稳定会让人变钝", v:1},
+    {t:"稳定=温水煮青蛙，我拒绝", v:2}
+  ]}
+];
+
+/* 结果人格 */
+const RESULTS = {
+  "mainline": {emoji:"🏆", name:"主线党（肝帝）", sub:"人生主线攻略狂 · 全成就强迫症",
+    desc:"你脑子里永远有一张「五年计划表」，别人在吃瓜，你在跑进度条。",
+    insight:"你习惯把人生当成一份待办清单，安全感几乎全部来自「又划掉了一项」。可问题是，人生从来不是一条笔直的进度条——它更像一张地图，有些地方压根没有通关条件，也没有评分。你太擅长往前赶，却可能因此错过了路边那些「没有用、但很快乐」的东西。说真的，你有没有想过：那些被你判定为「浪费时间」的事，或许才是真正让你觉得自己「还活着」的部分？慢一点，不会有人给你扣分。",
+    theory:"说白了，你就是心理学里说的「高尽责性人格」——自律、靠谱、目标感极强，这是你最值钱的天赋。但心理学研究（Kasser 和 Ryan 那批学者）也提醒过：当一个人把全部精力都押在「赚钱、升职、拿证书」这些外在目标上时，幸福感的回报其实是会「缩水」的。就像游戏里死磕一个高难成就，通关那一刻很爽，但爽完之后往往是空虚。偶尔停下来，其实不亏。",
+    quote:"不要因为走得太远，而忘记了为什么出发。",
+    tip:"给自己设一个「无 KPI 的副本」——学一个永远用不上的技能，纯粹为了好玩。"},
+  "collector": {emoji:"🎒", name:"支线收集狂", sub:"人生支线收藏家 · 兴趣的渣男/渣女",
+    desc:"你的人生是一张巨大的地图，每个角落的「！」都想去点一下。",
+    insight:"你对世界有永不熄灭的好奇，什么都想试、什么都沾一点，于是常被身边人问：「那你到底擅长什么？」这句话听得多了，连你自己都开始怀疑是不是「不够专一」。但真相恰恰相反——你的天赋，是把一堆看似不相关的经历，连接成一张别人看不到的网。你缺的从来不是专注，而是「收网」：把那些点过就放下的支线，选一两条真正钻进去。到那时你会发现，过去的每一次「三分钟热度」，其实都在为今天的你铺路。",
+    theory:"在心理学里，这属于「高开放性人格」——对新鲜事物天然敏感，喜欢探索、拥抱变化。这类人的职业路径通常更多元，机会也更多，但代价是容易「选择困难」，什么都想要、什么又都舍不得深挖。好消息是，在今天这个知识经济的时代，一个人「什么都懂一点」的广度，反而可能是一种稀缺的组合优势——前提是你得有几样东西能「钻得深」。",
+    quote:"我们不是因为老了才停止玩耍，而是因为停止玩耍才变老。",
+    tip:"每半年选一条支线「深化到 80 分」，体验从「点过」到「做穿」的质变。"},
+  "camper": {emoji:"🐢", name:"苟活流（隐身术士）", sub:"副本边缘的透明人 · 高级潜水员",
+    desc:"Boss 来了你先找掩体，能躺平绝不多动一下，但你其实比谁都清楚局势。",
+    insight:"你总被误读成「不上进」「太佛」，但只有你自己知道，你不是没想法，只是习惯先观察、先确认安全，再决定要不要出手。这份「对风险的敏感」其实是老天给你的保护伞，让你避开了很多别人一头扎进去的坑。可它也有副作用：清醒得太久，你会慢慢忘了「主动出击」是什么手感，机会来了也不敢接。记住，谨慎是你的优势，但别让它变成困住你的壳。",
+    theory:"用心理学的话讲，你是典型的「高 BIS 型」——大脑里的「刹车系统」特别灵敏，遇到不确定性会本能地先踩刹车、求稳求安全。这套系统保护了你，但同时也容易让你「过度防御」。好在刹车是可以练的：一点点、有控制地去做些「小冒险」，大脑就会慢慢明白「原来也没那么危险」，胆子就是这样一点点练出来的。",
+    quote:"勇气不是没有恐惧，而是判断有些东西比恐惧更重要。",
+    tip:"每个月做一件「只损失一点点、但能练胆」的小事，给行为激活留个口。"},
+  "whale": {emoji:"💎", name:"氪金改命流（资源玩家）", sub:"人生氪金战士 · 效率至上主义者",
+    desc:"你相信「资源能解决大部分问题」，能用钱/时间/人脉换的，绝不用情绪硬扛。",
+    insight:"你的执行力强到让人羡慕，遇到问题第一反应永远是「怎么用最少的资源、最快的办法搞定」，而不是「先难过一会儿」。这种高效让你在职场和考试里无往不利。但你要警惕一件事：当「一切都可以用性价比衡量」变成你的默认视角，那些「算不清账」的东西——比如一段没什么回报的感情、一个看起来「不划算」的梦想——就会让你手足无措。人生里最珍贵的那部分，往往恰恰是「不划算」的。",
+    theory:"这在哲学和社会学里叫「工具理性」——凡事都追求最高效率、最优解。它最大的本事，是帮你在「目标清晰」的副本里一路开挂；但它最大的盲区，是遇到「价值本身就很模糊」的人生大题时，会突然失灵。因为有些事的意义，没办法用投入产出比去计算，越算越拧巴。",
+    quote:"生活不只是为了活着，而是为了活得有意义。",
+    tip:"留 10% 的预算/时间，专门投给「看起来不划算但让你心动」的事。"},
+  "cheater": {emoji:"🌪️", name:"开挂型（野路子天才）", sub:"不按攻略走的开挂玩家 · 规则的漏洞猎人",
+    desc:"别人走正门，你总能发现后门；别人背公式，你直接抄答案还抄出花样。",
+    insight:"你天生不喜欢「按规矩来」，总能从别人看不到的角度找到更省力的解法，这份创造力是你最锋利的武器。但「总在找捷径」也有代价：有些真正重要的东西——比如一门硬功夫、一段需要死磕的关系——是没有捷径可走的。一旦你习惯了抄近路，遇到需要「笨功夫」才能拿下的难关时，反而容易因为「没耐心磨」而提前放弃。聪明是你的天赋，但别让它变成你唯一的通关方式。",
+    theory:"心理学上，你是「高开放性 + 高冒险偏好」的组合，这也是创业者、发明家身上最常见的画像——经济学里熊彼特说的「企业家精神」，本质就是这种敢于打破规则、重新组合资源的能力。这类人最容易做成别人做不成的事，但前提是，你得愿意偶尔放弃捷径，去啃那些「啃下来就真的属于你」的硬骨头。",
+    quote:"疯狂的人常常自认为能改变世界，而他们确实做到了。",
+    tip:"每年选一个「没有捷径」的硬骨头啃一次，保持「死磕肌肉」不萎缩。"},
+  "zen": {emoji:"🧘", name:"佛系挂机（放置玩家）", sub:"人生放置流大师 · 情绪稳定代言人",
+    desc:"你把人生挂机了，偶尔上来收个菜，居然也长得不错。",
+    insight:"你身上那股「松弛感」，是现在这个人人内耗的时代里，很多人求都求不来的天赋。你不着急、不攀比、不轻易被别人的节奏带着走，这本身就是一种很强的能力。但你要警惕一个陷阱：时间久了，「佛」容易悄悄变成「逃避」——用「看开了」来掩盖「其实是不敢去争取」。真正的看开，是努力过之后的坦然；而真正的逃避，是从一开始就没敢伸出手。偶尔问问自己，你现在是哪一种？",
+    theory:"心理学里的「正念」研究早就证实，像你这样「不评判地接纳当下」的人，焦虑水平确实更低、情绪也更稳，这是实打实的好处。但后来的接纳承诺疗法（ACT）又补了一个关键区分：接纳，不等于放弃行动。你可以接纳现状，同时仍然主动去做改变的事。这两件事一点都不矛盾，反而是一套组合拳。",
+    quote:"真正的平静，不是避开车马喧嚣，而是在心里修篱种菊。",
+    tip:"给「挂机」加一个「定时任务」——每周主动做一件「让自己有点不舒服」的成长事。"},
+  "dual": {emoji:"🎭", name:"双面玩家（人设切换者）", sub:"人生多面体 · 社交场里的变形金刚",
+    desc:"你在不同人面前是不同的副本角色，切换自如，只有你知道「真正的你」藏在哪个存档里。",
+    insight:"你的情商和适应力都很强，能瞬间切换出「职场人」「好朋友」「孝顺子女」等不同角色，这让你走到哪里都吃得开。但你要留意一件事：当「扮演」成为习惯，夜深人静时，你可能会突然分不清「哪个是面具、哪个才是真正的我」。你不是虚伪，你只是太擅长照顾别人的感受了。记得定期给自己留一个「不用扮演任何人」的空间，让那个最真实的你，也出来喘口气。",
+    theory:"社会学家戈夫曼有个著名的「拟剧论」，说的是人生就像一场演出，人人都在前台「表演」、在后台「放松」。这本身很正常。但心理学研究也发现：如果你长期处在「高情绪劳动」状态——就是得时刻管理表情、迎合他人——心理能量会快速耗竭，也就是我们常说的「社交累了」。所以关键不是「不能演」，而是得知道自己在哪一刻可以「下台」。",
+    quote:"世界上只有一种英雄主义，就是认清生活真相之后依然热爱生活。",
+    tip:"定期找一个「不用扮演任何人」的空间，让真实的自己出来透口气。"},
+  "wolf": {emoji:"🐺", name:"独狼副本（单刷王者）", sub:"人生单刷狂人 · 拒绝组队的孤勇者",
+    desc:"你宁可自己肝 100 小时，也不想带一个拖后腿的队友。",
+    insight:"你独立、能扛事，习惯凡事靠自己解决，从不愿给别人添麻烦，这份硬气值得敬佩。但「单刷」久了，你可能会忽略一个事实：人生里有那么几关——比如一段亲密关系、一次需要合伙的创业、甚至养大一个孩子——天生就是「多人副本」，一个人根本打不动。你不是不需要队友，你只是还没遇到那个「不拖你后腿、还让你愿意交出后背」的人。试着把一点点信任交出去，你会发现组队有时比单刷更省力。",
+    theory:"在依恋理论里，你偏「回避型」——习惯靠独立来保护自己，害怕依赖会带来失望。同时，自我决定理论提到，人天生有三大心理需求，其中「自主感」你很足，但「归属感」这一块可能长期没被喂饱。长期缺归属感，再强的人也会在某个深夜感到孤独。独立是铠甲，但偶尔卸下来，也没什么大不了的。",
+    quote:"一个人可以走得很快，但一群人可以走得更远。",
+    tip:"从「低风险组队」开始——找个搭子一起健身、一起读书，练习「信任他人不失控」。"}
+};
+
+/* ================= Supabase 初始化 ================= */
+const SUPABASE_URL = "https://ylqpmifklhfgiithmfml.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlscXBtaWZrbGhmZ2lpdGhtZm1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI1NzI0MjcsImV4cCI6MjEwODE0ODQyN30.QGSzT1wb1X4C4GbaHMZ3ihQrt7SANDMwjUZlHNNeG2A";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const PW_KEY = "fb_life_player_pw";      // 本地记录密码使用次数（兼容）
+const RESULT_KEY = "fb_life_player_saved"; // 保存的结果
+
+/* ================= 状态 ================= */
+let state = {
+  pw: "",
+  answers: {},   // {index: value}
+  current: 0,
+};
+
+/* ================= 工具 ================= */
+function $(id){return document.getElementById(id);}
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+/* ================= 密码逻辑（云端校验） ================= */
+function initPassword(){
+  $("pwSubmit").addEventListener("click", doLogin);
+  $("pwInput").addEventListener("keydown", e=>{if(e.key==="Enter")doLogin();});
+}
+async function doLogin(){
+  const pw = $("pwInput").value.trim().toUpperCase();
+  if(!pw){
+    $("pwErr").textContent = "请输入密码";
+    return;
+  }
+  $("pwErr").textContent = "";
+  $("pwSubmit").disabled = true;
+  $("pwSubmit").textContent = "验证中...";
+
+  try{
+    // 调用云端 RPC 函数校验密码并消耗一次次数
+    const { data, error } = await supabase.rpc("verify_password", { p_code: pw });
+
+    if(error){
+      console.error("verify_password error:", error);
+      $("pwErr").textContent = "网络异常，请稍后重试";
+      return;
+    }
+
+    if(!data || data.ok === false){
+      if(data && data.error === "used_up"){
+        $("pwErr").textContent = "该密码已用完 3 次测评次数";
+      }else{
+        $("pwErr").textContent = "密码错误，请核对后重试";
+      }
+      return;
+    }
+
+    state.pw = pw;
+    const remain = data.remain;
+    $("quizRemainText").textContent = "剩余 " + remain + " 次";
+    startQuiz();
+  }catch(e){
+    console.error(e);
+    $("pwErr").textContent = "网络异常，请稍后重试";
+  }finally{
+    $("pwSubmit").disabled = false;
+    $("pwSubmit").textContent = "开始测评";
+  }
+}
+
+/* ================= 答题逻辑 ================= */
+function startQuiz(){
+  state.current = 0;
+  state.answers = {};
+  showPage("quizPage");
+  renderQuiz();
+}
+function renderQuiz(){
+  const q = QUESTIONS[state.current];
+  $("quizProgressText").textContent = (state.current+1) + " / " + QUESTIONS.length;
+  $("quizProgressFill").style.width = ((state.current+1)/QUESTIONS.length*100) + "%";
+  $("quizQNum").textContent = "第 " + (state.current+1) + " 题";
+  $("quizQuestion").textContent = q.q;
+  const optsBox = $("quizOptions");
+  optsBox.innerHTML = "";
+  q.opts.forEach((o, i)=>{
+    const div = document.createElement("button");
+    div.className = "option";
+    const selected = state.answers[state.current] === i;
+    if(selected) div.classList.add("selected");
+    div.innerHTML = '<span class="opt-mark">' + String.fromCharCode(65+i) + '</span><span>' + o.t + '</span>';
+    div.addEventListener("click", ()=>{
+      state.answers[state.current] = i;
+      renderQuiz();
+    });
+    optsBox.appendChild(div);
+  });
+  // 上一题按钮显隐
+  $("btnPrev").style.display = state.current > 0 ? "block" : "none";
+  // 下一题/提交按钮文字
+  $("btnNext").textContent = state.current === QUESTIONS.length-1 ? "查看结果" : "下一题";
+}
+function nextQuestion(){
+  if(state.answers[state.current] === undefined){
+    toast("请先选择一个选项哦");
+    return;
+  }
+  if(state.current < QUESTIONS.length - 1){
+    state.current++;
+    renderQuiz();
+  }else{
+    showResult();
+  }
+}
+function prevQuestion(){
+  if(state.current > 0){
+    state.current--;
+    renderQuiz();
+  }
+}
+
+/* ================= 计算维度 ================= */
+function calcDimensions(){
+  let A=0, B=0, D=0, Csolo=0, Csocial=0, Cout=0;
+  QUESTIONS.forEach((q, i)=>{
+    const ans = state.answers[i];
+    if(ans === undefined) return;
+    const v = q.opts[ans].v;
+    if(q.d === "A") A += v;
+    else if(q.d === "B") B += v;
+    else if(q.d === "D") D += v;
+    else if(q.d === "C"){
+      if(v === "solo") Csolo++;
+      else if(v === "social") Csocial++;
+      else if(v === "out") Cout++;
+    }
+  });
+  // 回血方式：社交 vs 独处（产出归入独处阵营的独立判定）
+  const recovery = Csocial > Csolo ? "social" : "solo";
+  const outRatio = Cout / 6; // 产出回血程度
+  return {A, B, D, Csolo, Csocial, Cout, recovery, outRatio};
+}
+
+function determineResult(d){
+  const A = d.A >= 4 ? "H" : "L";   // 满分12，中位6，用4做阈值更贴合
+  const B = d.B >= 4 ? "H" : "L";
+  const D = d.D >= 4 ? "H" : "L";
+  const C = d.recovery;
+  // 组合映射
+  const key = A + B + C + D;
+  const map = {
+    "HHsocialL":"mainline", "HHL":"mainline",
+    "LHsocioL":"collector", "LHsociaL":"collector",
+  };
+  // 简化：用规则匹配
+  if(A==="H" && B==="H" && D==="L") return "mainline";
+  if(A==="H" && B==="H" && D==="H") return "whale";
+  if(A==="L" && B==="H" && D==="H" && C==="social") return "cheater";
+  if(A==="L" && B==="H" && C==="social") return "collector";
+  if(A==="H" && B==="L" && D==="H" && C==="social") return "dual";
+  if(A==="H" && B==="L" && D==="H") return "wolf";
+  if(A==="L" && B==="L" && D==="L") return "camper";
+  if(A==="L" && B==="L") return "zen";
+  // 兜底：按主维度
+  if(A==="H") return D==="H" ? "wolf" : "mainline";
+  if(B==="H") return D==="H" ? "cheater" : "collector";
+  return D==="H" ? "dual" : "zen";
+}
+
+/* ================= 结果展示 ================= */
+let lastResult = null;
+function showResult(){
+  const d = calcDimensions();
+  const type = determineResult(d);
+  const R = RESULTS[type];
+  lastResult = {type, R, d};
+
+  const radarScores = {
+    "主线策略": Math.max(0, Math.min(100, (d.A+6)/12*100)),
+    "资源获取": Math.max(0, Math.min(100, (d.B+6)/12*100)),
+    "回血活力": Math.max(0, Math.min(100, (d.Cout+3)/9*100)),
+    "风险偏好": Math.max(0, Math.min(100, (d.D+6)/12*100))
+  };
+
+  const html = `
+    <div class="result-card" id="resultCard">
+      <span class="result-emoji">${R.emoji}</span>
+      <div class="result-title">${R.name}</div>
+      <div class="result-subtitle">${R.sub}</div>
+      <div class="result-desc">${R.desc}</div>
+
+      <div class="radar-box">
+        <h3>你的四维能力图谱</h3>
+        <canvas id="radarCanvas" class="radar-chart"></canvas>
+      </div>
+
+      <div class="dim-list">
+        ${dimItem("主线策略", radarScores["主线策略"])}
+        ${dimItem("资源获取", radarScores["资源获取"])}
+        ${dimItem("回血活力", radarScores["回血活力"])}
+        ${dimItem("风险偏好", radarScores["风险偏好"])}
+      </div>
+
+      <div class="insight-box">
+        <h4>🔍 扎心解读</h4>
+        <p>${R.insight}</p>
+      </div>
+      <div class="insight-box">
+        <h4>📚 理论依据</h4>
+        <p>${R.theory}</p>
+      </div>
+      <div class="quote-box">
+        <span class="quote-mark">“</span>
+        <p>${R.quote}</p>
+      </div>
+      <div class="insight-box">
+        <h4>💡 进阶建议</h4>
+        <p>${R.tip}</p>
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn btn-primary" id="btnSaveResult">💾 保存测评结果</button>
+      <div class="row2">
+        <button class="btn btn-line" id="btnCopyLink">🔗 复制结果链接</button>
+        <button class="btn btn-line" id="btnRetest">🔄 再测一次</button>
+      </div>
+      <button class="btn btn-ghost" id="btnReview">⭐ 好评有礼</button>
+    </div>
+  `;
+  $("resultContent").innerHTML = html;
+  showPage("resultPage");
+
+  // 绑定事件
+  $("btnSaveResult").addEventListener("click", saveResult);
+  $("btnCopyLink").addEventListener("click", copyLink);
+  $("btnRetest").addEventListener("click", retest);
+  $("btnReview").addEventListener("click", ()=>{$("reviewModal").classList.add("show");});
+
+  // 绘制雷达图
+  requestAnimationFrame(()=>drawRadar(radarScores));
+}
+
+function dimItem(name, val){
+  const pct = Math.round(val);
+  return `<div class="dim-item">
+    <div class="dim-head"><span class="dim-name">${name}</span><span class="dim-val">${pct}</span></div>
+    <div class="dim-bar"><div class="fill" style="width:${pct}%"></div></div>
+  </div>`;
+}
+
+function drawRadar(scores){
+  const canvas = $("radarCanvas");
+  if(!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth || 300;
+  const h = canvas.clientHeight || 200;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const labels = Object.keys(scores);
+  const values = labels.map(l=>scores[l]);
+  const n = labels.length;
+  const cx = w/2, cy = h/2;
+  const R = Math.min(w,h)/2 - 30;
+
+  ctx.clearRect(0,0,w,h);
+
+  // 网格
+  for(let ring=1; ring<=4; ring++){
+    ctx.beginPath();
+    for(let i=0;i<n;i++){
+      const ang = -Math.PI/2 + i*2*Math.PI/n;
+      const r = R*ring/4;
+      const x = cx + Math.cos(ang)*r;
+      const y = cy + Math.sin(ang)*r;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = "rgba(255,255,255,.12)";
+    ctx.stroke();
+  }
+  // 轴线
+  for(let i=0;i<n;i++){
+    const ang = -Math.PI/2 + i*2*Math.PI/n;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(ang)*R, cy+Math.sin(ang)*R);
+    ctx.strokeStyle = "rgba(255,255,255,.12)";
+    ctx.stroke();
+  }
+  // 数据区
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+    const ang = -Math.PI/2 + i*2*Math.PI/n;
+    const r = R*values[i]/100;
+    const x = cx + Math.cos(ang)*r;
+    const y = cy + Math.sin(ang)*r;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,w,h);
+  grad.addColorStop(0,"rgba(255,92,138,.5)");
+  grad.addColorStop(1,"rgba(255,183,77,.5)");
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = "#ff5c8a";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // 顶点
+  for(let i=0;i<n;i++){
+    const ang = -Math.PI/2 + i*2*Math.PI/n;
+    const r = R*values[i]/100;
+    ctx.beginPath();
+    ctx.arc(cx+Math.cos(ang)*r, cy+Math.sin(ang)*r, 3, 0, 2*Math.PI);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+  }
+  // 标签
+  ctx.fillStyle = "#9a9ab0";
+  ctx.font = "11px sans-serif";
+  ctx.textAlign = "center";
+  for(let i=0;i<n;i++){
+    const ang = -Math.PI/2 + i*2*Math.PI/n;
+    const x = cx + Math.cos(ang)*(R+22);
+    const y = cy + Math.sin(ang)*(R+22);
+    ctx.fillText(labels[i], x, y+4);
+  }
+}
+
+/* ================= 保存 / 长图 / 复制 ================= */
+async function saveResult(){
+  if(!lastResult) return;
+  // 保存到云端，获取分享 ID
+  try{
+    const { data: resultId, error } = await supabase.rpc("save_result", {
+      p_result_type: lastResult.type,
+      p_result_name: lastResult.R.name,
+      p_answer_data: JSON.stringify(state.answers)
+    });
+    if(error){
+      console.error("save_result error:", error);
+    }else if(resultId){
+      lastResult.shareId = resultId;
+      // 生成分享链接
+      lastResult.shareLink = location.href.split("?")[0] + "?id=" + resultId;
+    }
+  }catch(e){
+    console.error(e);
+  }
+
+  toast("正在生成长图...");
+  const card = $("resultCard");
+  html2canvas(card, {backgroundColor:"#23233a", scale:2, useCORS:true}).then(canvas=>{
+    const link = document.createElement("a");
+    link.download = "人生副本玩家_"+lastResult.R.name+".png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    toast("长图已保存到相册/下载目录");
+  }).catch(err=>{
+    console.error(err);
+    toast("生成长图失败，可尝试手动截图");
+  });
+}
+
+function copyLink(){
+  if(!lastResult) return;
+  // 优先用云端分享链接，若未保存则先保存
+  if(lastResult.shareLink){
+    doCopy(lastResult.shareLink);
+  }else{
+    // 尚未保存，先保存再复制
+    toast("正在生成分享链接...");
+    supabase.rpc("save_result", {
+      p_result_type: lastResult.type,
+      p_result_name: lastResult.R.name,
+      p_answer_data: JSON.stringify(state.answers)
+    }).then(({data: resultId, error})=>{
+      if(error){
+        console.error(error);
+        toast("生成链接失败，请重试");
+        return;
+      }
+      lastResult.shareId = resultId;
+      lastResult.shareLink = location.href.split("?")[0] + "?id=" + resultId;
+      doCopy(lastResult.shareLink);
+    });
+  }
+}
+function doCopy(text){
+  copyToClipboard(text).then(()=>{
+    toast("结果链接已复制，快去分享吧");
+  });
+}
+function copyToClipboard(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));
+  }
+  return fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try{document.execCommand("copy");}catch(e){}
+  document.body.removeChild(ta);
+  return Promise.resolve();
+}
+
+function retest(){
+  // 再测一次：直接重新开始答题（不重新扣密码，因为密码剩余次数已扣）
+  startQuiz();
+}
+
+/* ================= 分享链接结果恢复 ================= */
+async function checkShareResult(){
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+  if(id){
+    // 从云端读取分享结果
+    try{
+      const { data, error } = await supabase
+        .from("results")
+        .select("result_type")
+        .eq("id", id)
+        .single();
+      if(error || !data){
+        console.error("load share result error:", error);
+        showShareNotFound();
+        return true;
+      }
+      const type = data.result_type;
+      if(RESULTS[type]){
+        showShareResult(type);
+        return true;
+      }else{
+        showShareNotFound();
+        return true;
+      }
+    }catch(e){
+      console.error(e);
+      showShareNotFound();
+      return true;
+    }
+  }
+  return false;
+}
+function showShareNotFound(){
+  const html = `
+    <div class="result-card">
+      <span class="result-emoji">🔍</span>
+      <div class="result-title">结果未找到</div>
+      <div class="result-desc">这个链接可能已失效，或结果不存在。</div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-primary" id="btnGoTest">我也来测一测</button>
+    </div>
+  `;
+  $("resultContent").innerHTML = html;
+  showPage("resultPage");
+  $("btnGoTest").addEventListener("click", ()=>{
+    location.href = location.href.split("?")[0];
+  });
+}
+function showShareResult(type){
+  const R = RESULTS[type];
+  const html = `
+    <div class="result-card" id="resultCard">
+      <span class="result-emoji">${R.emoji}</span>
+      <div class="result-title">${R.name}</div>
+      <div class="result-subtitle">${R.sub}</div>
+      <div class="result-desc">${R.desc}</div>
+      <div class="insight-box"><h4>🔍 扎心解读</h4><p>${R.insight}</p></div>
+      <div class="insight-box"><h4>📚 理论依据</h4><p>${R.theory}</p></div>
+      <div class="quote-box"><span class="quote-mark">“</span><p>${R.quote}</p></div>
+      <div class="insight-box"><h4>💡 进阶建议</h4><p>${R.tip}</p></div>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-primary" id="btnShareSave">💾 保存结果长图</button>
+      <button class="btn btn-line" id="btnGoTest">我也想测一测</button>
+    </div>
+  `;
+  $("resultContent").innerHTML = html;
+  showPage("resultPage");
+  $("btnShareSave").addEventListener("click", saveResult);
+  $("btnGoTest").addEventListener("click", ()=>{
+    location.href = location.href.split("?")[0];
+  });
+}
+
+/* ================= 初始化 ================= */
+async function init(){
+  initPassword();
+  // 好评弹窗关闭
+  $("reviewClose").addEventListener("click", ()=>{$("reviewModal").classList.remove("show");});
+  $("reviewModal").addEventListener("click", e=>{if(e.target===$("reviewModal"))$("reviewModal").classList.remove("show");});
+  // 答题按钮
+  $("btnNext").addEventListener("click", nextQuestion);
+  $("btnPrev").addEventListener("click", prevQuestion);
+  // 检查分享链接（异步）
+  const isShare = await checkShareResult();
+  if(!isShare){
+    showPage("passwordPage");
+  }
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
